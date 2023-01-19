@@ -2,6 +2,7 @@ import os
 import logging
 
 from aiogram import executor, Bot, Dispatcher
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from dotenv import load_dotenv
 
 
@@ -14,9 +15,11 @@ if __name__ == "__main__":
 
     load_dotenv()
     bot = Bot(token=os.getenv("TOKEN"))
-    dp = Dispatcher(bot)
+    storage = MemoryStorage()
+    dp = Dispatcher(bot, storage=storage)
 
-    from handlers import welcome_commands
+    from handlers import welcome_commands, alcohol_handler
     welcome_commands.register_handler(dp)
+    alcohol_handler.register_handler(dp)
 
     start(dp)
