@@ -1,10 +1,11 @@
 from aiogram import types, Dispatcher
 
+from keyboards import general
+
 
 async def send_welcome(message: types.Message):
-    message = "Привет! Я бот для ведения статистики по количеству выпитого алкоголя.\n" \
-              ""
-    await message.reply("Привет!")
+    text = "Привет! Я бот для ведения статистики по количеству выпитого алкоголя.\n"
+    await message.answer(text, reply_markup=general.general_keyboard)
 
 
 def register_handler(dp: Dispatcher):
