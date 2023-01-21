@@ -18,8 +18,8 @@ if __name__ == "__main__":
     storage = MemoryStorage()
     dp = Dispatcher(bot, storage=storage)
 
-    from handlers import welcome_commands, alcohol_handler
-    welcome_commands.register_handler(dp)
+    from handlers import welcome_handler, alcohol_handler
+    welcome_handler.register_handler(dp)
     alcohol_handler.register_handler(dp)
 
     start(dp)
