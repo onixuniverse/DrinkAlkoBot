@@ -2,9 +2,11 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
 from datetime import datetime
 
+from db import db
+
 
 # Drinks Keyboard
-drink_types = ["Белое вино", "Красное вино", "Шампанское", "Пиво", "Водка"]
+drink_types = db.get_drink_types()
 drinks_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
 
 index = 0

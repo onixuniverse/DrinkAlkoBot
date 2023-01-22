@@ -11,6 +11,7 @@ from keyboards import alcohol, general
 
 
 class FSMAddDrink(StatesGroup):
+    tg_id = State()
     drink = State()
     date = State()
     count = State()
@@ -33,6 +34,7 @@ async def cancel_alcohol_fsm(message: types.Message, state: FSMContext):
 
 async def load_drink(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
+        data['tg_id'] = message.from_id
         data['drink'] = message.text
 
     await FSMAddDrink.next()
@@ -43,58 +45,47 @@ async def load_drink(message: types.Message, state: FSMContext):
 
 
 async def load_date(message: types.Message, state: FSMContext):
-    flag = False
-    while not flag:
-        if re.match(r"(0?[1-9]|[12][0-9]|3[01]).(0?[1-9]|1[012]).(2023)", message.text):
-            async with state.proxy() as data:
-                data['date'] = message.text
-            flag = True
-            await FSMAddDrink.next()
+    if re.match(r"(0?[1-9]|[12][0-9]|3[01]).(0?[1-9]|1[012]).(2023)", message.text):
+        async with state.proxy() as data:
+            data['date'] = message.text
 
-            await message.reply("🍷 Введите массу напитка в миллилитрах.", reply_markup=alcohol.count_keyboard)
-        else:
-            await message.reply("Введена некорректная дата!", reply_markup=alcohol.count_keyboard)
-            flag = False
+        await FSMAddDrink.next()
+
+        await message.reply("🍷 Введите массу напитка в миллилитрах.", reply_markup=alcohol.count_keyboard)
+    else:
+        await message.reply("Введена некорректная дата!", reply_markup=alcohol.dates_keyboard)
 
 
 async def load_count(message: types.Message, state: FSMContext):
-    flag = False
-    while not flag:
-        if message.text.isdigit():
-            async with state.proxy() as data:
-                data['count'] = message.text
-            flag = True
-            await FSMAddDrink.next()
+    if message.text.isdigit():
+        async with state.proxy() as data:
+            data['count'] = message.text
+        await FSMAddDrink.next()
 
-            await message.reply("💸 Какая стоимость у напитка?", reply_markup=ReplyKeyboardRemove())
-        else:
-            await message.reply("Введена некорректная масса!", reply_markup=ReplyKeyboardRemove())
-            flag = False
+        await message.reply("💸 Какая стоимость у напитка?", reply_markup=ReplyKeyboardRemove())
+    else:
+        await message.reply("Введена некорректная масса!", reply_markup=alcohol.count_keyboard)
 
 
 async def load_price(message: types.Message, state: FSMContext):
-    flag = False
-    while not flag:
-        try:
-            message.text = message.text.replace(",", ".")
-            float(message.text)
+    try:
+        message.text.isdecimal()
+        message.text = message.text.replace(",", ".")
 
-            async with state.proxy() as data:
-                data['price'] = message.text
-            flag = True
+        async with state.proxy() as data:
+            data['price'] = float(message.text)
 
-            await db.add_record(str(message.from_id), state)
+        await db.add_statistics(state)
 
-            async with state.proxy() as data:
-                print(str(data))
-                await message.answer(f"✅ Отлично, напиток добавлен!\n\nНапиток: {data['drink']}\nДата: {data['date']}\n"
-                                     f"Количество: {data['count']}мл\nЦена: {data['price']}",
-                                     reply_markup=general.general_keyboard)
+        async with state.proxy() as data:
+            print(str(data))
+            await message.answer(f"✅ Отлично, напиток добавлен!\n\nНапиток: {data['drink']}\nДата: {data['date']}\n"
+                                 f"Количество: {data['count']}мл\nЦена: {data['price']}",
+                                 reply_markup=general.general_keyboard)
 
-            await state.finish()
-        except ValueError:
-            await message.reply("Введена некорректная стоимость!", reply_markup=ReplyKeyboardRemove())
-            flag = False
+        await state.finish()
+    except ValueError:
+        await message.reply("Введена некорректная стоимость!", reply_markup=ReplyKeyboardRemove())
 
 
 def register_handler(dp: Dispatcher):
