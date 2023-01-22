@@ -40,8 +40,16 @@ async def add_statistics(state):
         add_new_user(data['tg_id'])
 
         cur.execute("""INSERT INTO statistics (user_id, drink_id, date, quantity, price) VALUES (
-                    (SELECT id FROM users WHERE telegram_id = ?),
-                    (SELECT id FROM drink_types WHERE type = ?), (?), (?), (?))""", tuple(data.values()))
+                       (SELECT id FROM users WHERE telegram_id = ?),
+                       (SELECT id FROM drink_types WHERE type = ?),
+                       (?), (?), (?))""", tuple(data.values()))
         conn.commit()
 
 
+async def get_statistics(user_id):
+    query = cur.execute("""SELECT quantity, price 
+                           FROM statistics 
+                           WHERE user_id = (SELECT id FROM users WHERE telegram_id = ?)""", (user_id,))
+    result = query.fetchall()
+
+    return result

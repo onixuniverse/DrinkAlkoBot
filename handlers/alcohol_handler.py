@@ -14,7 +14,7 @@ class FSMAddDrink(StatesGroup):
     tg_id = State()
     drink = State()
     date = State()
-    count = State()
+    quantity = State()
     price = State()
 
 
@@ -51,20 +51,20 @@ async def load_date(message: types.Message, state: FSMContext):
 
         await FSMAddDrink.next()
 
-        await message.reply("🍷 Введите массу напитка в миллилитрах.", reply_markup=alcohol.count_keyboard)
+        await message.reply("🍷 Введите массу напитка в миллилитрах.", reply_markup=alcohol.quantity_keyboard)
     else:
         await message.reply("Введена некорректная дата!", reply_markup=alcohol.dates_keyboard)
 
 
-async def load_count(message: types.Message, state: FSMContext):
+async def load_quantity(message: types.Message, state: FSMContext):
     if message.text.isdigit():
         async with state.proxy() as data:
-            data['count'] = message.text
+            data['quantity'] = message.text
         await FSMAddDrink.next()
 
         await message.reply("💸 Какая стоимость у напитка?", reply_markup=ReplyKeyboardRemove())
     else:
-        await message.reply("Введена некорректная масса!", reply_markup=alcohol.count_keyboard)
+        await message.reply("Введена некорректная масса!", reply_markup=alcohol.quantity_keyboard)
 
 
 async def load_price(message: types.Message, state: FSMContext):
@@ -78,9 +78,8 @@ async def load_price(message: types.Message, state: FSMContext):
         await db.add_statistics(state)
 
         async with state.proxy() as data:
-            print(str(data))
             await message.answer(f"✅ Отлично, напиток добавлен!\n\nНапиток: {data['drink']}\nДата: {data['date']}\n"
-                                 f"Количество: {data['count']}мл\nЦена: {data['price']}",
+                                 f"Количество: {data['quantity']}мл\nЦена: {data['price']}",
                                  reply_markup=general.general_keyboard)
 
         await state.finish()
@@ -94,5 +93,5 @@ def register_handler(dp: Dispatcher):
     dp.register_message_handler(cancel_alcohol_fsm, Text(equals="отмена", ignore_case=True), state="*")
     dp.register_message_handler(load_drink, state=FSMAddDrink.drink)
     dp.register_message_handler(load_date, state=FSMAddDrink.date)
-    dp.register_message_handler(load_count, state=FSMAddDrink.count)
+    dp.register_message_handler(load_quantity, state=FSMAddDrink.quantity)
     dp.register_message_handler(load_price, state=FSMAddDrink.price)
