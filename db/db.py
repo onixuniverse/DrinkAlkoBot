@@ -46,10 +46,17 @@ async def add_statistics(state):
         conn.commit()
 
 
-async def get_statistics(user_id):
+async def get_user_statistics(user_id):
     query = cur.execute("""SELECT quantity, price 
                            FROM statistics 
                            WHERE user_id = (SELECT id FROM users WHERE telegram_id = ?)""", (user_id,))
+    result = query.fetchall()
+
+    return result
+
+
+async def get_all_statistics():
+    query = cur.execute("""SELECT quantity, price FROM statistics""")
     result = query.fetchall()
 
     return result
