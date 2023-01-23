@@ -69,7 +69,6 @@ async def load_quantity(message: types.Message, state: FSMContext):
 
 async def load_price(message: types.Message, state: FSMContext):
     try:
-        message.text.isdecimal()
         message.text = message.text.replace(",", ".")
 
         async with state.proxy() as data:
