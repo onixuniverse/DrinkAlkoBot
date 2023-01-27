@@ -26,9 +26,9 @@ dates_keyboard.add(dates_btn)
 
 
 # Count of drink Keyboard
-count_btn_1 = KeyboardButton("50")
-count_btn_2 = KeyboardButton("250")
-count_btn_3 = KeyboardButton("500")
-count_btn_4 = KeyboardButton("1000")
+quantity_btn_1 = KeyboardButton("50")
+quantity_btn_2 = KeyboardButton("250")
+quantity_btn_3 = KeyboardButton("500")
+quantity_btn_4 = KeyboardButton("1000")
 quantity_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-quantity_keyboard.row(count_btn_1, count_btn_2).row(count_btn_3, count_btn_4)
+quantity_keyboard.row(quantity_btn_1, quantity_btn_2).row(quantity_btn_3, quantity_btn_4)

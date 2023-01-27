@@ -11,16 +11,17 @@ def start(dp: Dispatcher):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
 
     load_dotenv()
     bot = Bot(token=os.getenv("TOKEN"))
     storage = MemoryStorage()
     dp = Dispatcher(bot, storage=storage)
 
-    from handlers import welcome_handler, alcohol_handler, statistics_handler
+    from handlers import welcome_handler, alcohol_handler, statistics_handler, settings_handler
     welcome_handler.register_handler(dp)
     alcohol_handler.register_handler(dp)
     statistics_handler.register_handler(dp)
+    settings_handler.register_handler(dp)
 
     start(dp)
